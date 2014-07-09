@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # The CCTOOLS we are to use
-cctoolsVer="4.2.0rc2"
+cctoolsVer="current"
+#cctoolsVer="4.2.0rc2"
 #cctoolsVer="4.1.4rc5"
 #cctoolsVer="4.1.3"
 
@@ -11,6 +12,16 @@ cctoolsVer="4.2.0rc2"
 
 # Where all our needed files should live
 buildHome="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Tarball download location
+buildDownload=/home/www/parrot
+
+# Tarball we will build
+buildTarball=cctools-${cctoolsVer}.tar.gz
+
+
+echo "Building CCTools tarball at ${buildDownload}/${buildTarball}"
+
 
 # Create a temporary working area
 tmpHome=$(mktemp -d)
@@ -32,6 +43,12 @@ wget --quiet http://ccl.cse.nd.edu/software/files/cctools-${cctoolsVer}-i686-red
 tar xzf cctools-${cctoolsVer}-x86_64-redhat6.tar.gz
 tar xzf cctools-${cctoolsVer}-i686-redhat6.tar.gz
 
+# Fix up the name if current
+if [[ "${cctoolsVer}" == "current" ]]; then
+  mv cctools-*-x86_64-redhat6 cctools-current-x86_64-redhat6
+  mv cctools-*-i686-redhat6   cctools-current-i686-redhat6
+fi
+
 # Create the workspace for our special CCTOOLS
 mkdir cctools
 
@@ -49,11 +66,11 @@ mv cctools-${cctoolsVer}-i686-redhat6/lib/libparrot_helper.so      cctools/lib/l
 
 
 # Build our cctools tarball
-tar czf cctools-${cctoolsVer}.tar.gz            cctools
+tar czf ${buildTarball}                                            cctools
 
 # Move it our download area
-rm -rf /home/www/parrot/cctools-${cctoolsVer}.tar.gz
-mv cctools-${cctoolsVer}.tar.gz                 /home/www/parrot/cctools-${cctoolsVer}.tar.gz
+rm -rf ${buildDownload}/${buildTarball}
+mv ${buildTarball}                                                 ${buildDownload}/${buildTarball}
 
 # Return home
 popd > /dev/null
